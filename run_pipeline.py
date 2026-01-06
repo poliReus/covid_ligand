@@ -4,6 +4,7 @@ import sys
 import time
 import glob
 import csv
+import json
 import nglview as nv
 
 # --- CONFIGURAZIONE ---
@@ -54,6 +55,7 @@ def generate_refined_reports():
     out_files = glob.glob(os.path.join(RESULTS_DIR, "*_out.pdbqt"))
     
     summary_data = []
+    pages_manifest = []
     print(f"📊 Generazione di {len(out_files)} report tecnici...")
 
     for f in out_files:
@@ -73,6 +75,7 @@ def generate_refined_reports():
 
         output_path = f"{VIEWS_DIR}/{name}.html"
         nv.write_html(output_path, [view])
+        pages_manifest.append({"name": name, "file": output_path})
         
         # Iniezione HTML per i metadati (CSS floating panel)
         metadata_box = f"""
@@ -99,6 +102,19 @@ def generate_refined_reports():
         writer = csv.writer(f)
         writer.writerow(["Molecola", "Affinity (kcal/mol)", "Ligand Efficiency"])
         writer.writerows(summary_data)
+
+    manifest_payload = {
+        "generated_at": time.strftime("%Y-%m-%d %H:%M:%S"),
+        "pages": pages_manifest
+    }
+    json_path = os.path.join(VIEWS_DIR, "manifest.json")
+    with open(json_path, "w") as f:
+        json.dump(manifest_payload, f, indent=2)
+    js_path = os.path.join(VIEWS_DIR, "manifest.js")
+    with open(js_path, "w") as f:
+        f.write("window.VIEWS_MANIFEST = ")
+        json.dump(manifest_payload, f, indent=2)
+        f.write(";\n")
 
 def main():
     start_total = time.time()

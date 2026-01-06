@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Docking Views Navigator</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Space+Grotesk:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        color-scheme: light;
+        --ink: #151515;
+        --muted: #5d5d5d;
+        --accent: #d46b1f;
+        --accent-strong: #b95812;
+        --surface: rgba(255, 255, 255, 0.86);
+        --surface-strong: rgba(255, 255, 255, 0.95);
+        --shadow: 0 18px 45px rgba(0, 0, 0, 0.12);
+        --radius: 18px;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        font-family: "Space Grotesk", "Segoe UI", sans-serif;
+        color: var(--ink);
+        background:
+          radial-gradient(900px 600px at 12% 15%, rgba(212, 107, 31, 0.18), transparent 60%),
+          radial-gradient(800px 500px at 90% 0%, rgba(55, 130, 111, 0.15), transparent 60%),
+          linear-gradient(145deg, #f8f1e7 0%, #eef4f2 60%, #f8f1e7 100%);
+        min-height: 100vh;
+      }
+
+      header {
+        padding: 56px clamp(24px, 5vw, 80px) 28px;
+      }
+
+      .title {
+        font-family: "DM Serif Display", "Times New Roman", serif;
+        font-size: clamp(2.2rem, 4vw, 3.6rem);
+        margin: 0 0 12px;
+        letter-spacing: 0.02em;
+      }
+
+      .subtitle {
+        color: var(--muted);
+        font-size: clamp(1rem, 1.3vw, 1.15rem);
+        max-width: 720px;
+        margin: 0;
+      }
+
+      main {
+        padding: 0 clamp(24px, 5vw, 80px) 64px;
+      }
+
+      .panel {
+        background: var(--surface);
+        border-radius: var(--radius);
+        box-shadow: var(--shadow);
+        padding: 22px;
+        display: grid;
+        gap: 16px;
+        backdrop-filter: blur(6px);
+      }
+
+      .controls {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        align-items: center;
+        justify-content: space-between;
+      }
+
+      .search {
+        flex: 1 1 240px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 12px 16px;
+        border-radius: 14px;
+        border: 1px solid rgba(0, 0, 0, 0.08);
+        background: var(--surface-strong);
+      }
+
+      .search input {
+        flex: 1;
+        border: none;
+        background: transparent;
+        font-size: 1rem;
+        outline: none;
+      }
+
+      .buttons {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+      }
+
+      button {
+        border: none;
+        cursor: pointer;
+        padding: 10px 16px;
+        border-radius: 999px;
+        font-size: 0.95rem;
+        font-weight: 600;
+        background: #1f1f1f;
+        color: #fff;
+        transition: transform 0.2s ease, background 0.2s ease;
+      }
+
+      button.secondary {
+        background: #f0e6db;
+        color: var(--ink);
+        border: 1px solid rgba(0, 0, 0, 0.08);
+      }
+
+      button:hover {
+        transform: translateY(-2px);
+        background: #2b2b2b;
+      }
+
+      button.secondary:hover {
+        background: #f6efe8;
+      }
+
+      .count {
+        color: var(--muted);
+        font-size: 0.95rem;
+      }
+
+      .grid {
+        display: grid;
+        gap: 18px;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      }
+
+      .card {
+        padding: 18px;
+        border-radius: 16px;
+        background: var(--surface-strong);
+        border: 1px solid rgba(0, 0, 0, 0.08);
+        display: grid;
+        gap: 12px;
+        min-height: 140px;
+        position: relative;
+        overflow: hidden;
+        animation: rise 0.4s ease both;
+      }
+
+      .card::after {
+        content: "";
+        position: absolute;
+        top: -40px;
+        right: -40px;
+        width: 120px;
+        height: 120px;
+        border-radius: 50%;
+        background: rgba(212, 107, 31, 0.08);
+        z-index: 0;
+      }
+
+      .card h3 {
+        margin: 0;
+        font-size: 1.2rem;
+        z-index: 1;
+      }
+
+      .card p {
+        margin: 0;
+        color: var(--muted);
+        font-size: 0.95rem;
+        z-index: 1;
+      }
+
+      .card a {
+        margin-top: auto;
+        text-decoration: none;
+        color: var(--accent);
+        font-weight: 600;
+        z-index: 1;
+      }
+
+      .empty {
+        padding: 24px;
+        text-align: center;
+        color: var(--muted);
+      }
+
+      @keyframes rise {
+        from {
+          opacity: 0;
+          transform: translateY(12px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      @media (max-width: 700px) {
+        header {
+          padding: 42px 24px 18px;
+        }
+
+        .controls {
+          flex-direction: column;
+          align-items: stretch;
+        }
+
+        .buttons {
+          width: 100%;
+        }
+
+        button {
+          flex: 1 1 auto;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1 class="title">Docking Views Navigator</h1>
+      <p class="subtitle">
+        Browse the molecule reports generated in the <code>views/</code> folder.
+        Use search and sorting to jump to the docking visuals quickly.
+      </p>
+    </header>
+
+    <main>
+      <section class="panel">
+        <div class="controls">
+          <label class="search">
+            <span>Search</span>
+            <input id="searchInput" type="search" placeholder="Type a molecule name" />
+          </label>
+          <div class="buttons">
+            <button id="sortButton" type="button" aria-pressed="false">Sort A-Z</button>
+            <button id="shuffleButton" class="secondary" type="button">Shuffle</button>
+            <button id="rescanButton" class="secondary" type="button">Rescan</button>
+          </div>
+        </div>
+        <div class="count" id="countLabel"></div>
+        <div class="grid" id="cardsGrid"></div>
+        <div class="empty" id="emptyState" hidden>No matches. Try a different query.</div>
+      </section>
+    </main>
+
+    <script src="views/manifest.js"></script>
+    <script>
+      const fallbackPages = [
+        { name: "Aspirina", file: "views/Aspirina.html" },
+        { name: "Ibuprofene", file: "views/Ibuprofene.html" },
+        { name: "Nirmatrelvir", file: "views/Nirmatrelvir.html" },
+        { name: "Remdesivir", file: "views/Remdesivir.html" },
+        { name: "Ritonavir", file: "views/Ritonavir.html" }
+      ];
+
+      const searchInput = document.getElementById("searchInput");
+      const sortButton = document.getElementById("sortButton");
+      const shuffleButton = document.getElementById("shuffleButton");
+      const rescanButton = document.getElementById("rescanButton");
+      const cardsGrid = document.getElementById("cardsGrid");
+      const countLabel = document.getElementById("countLabel");
+      const emptyState = document.getElementById("emptyState");
+
+      let pages = [];
+      let sortAscending = true;
+      let currentQuery = "";
+      let currentOrder = [];
+      let sourceLabel = "";
+
+      const compareNames = (a, b) => a.name.localeCompare(b.name);
+
+      const formatNameFromFile = (file) => {
+        const base = decodeURIComponent(file.split("/").pop() || "");
+        return base.replace(/\.html$/i, "").replace(/[_-]+/g, " ");
+      };
+
+      const normalizeFilePath = (file) => {
+        const normalized = file.replace(/\\/g, "/");
+        const cleaned = normalized
+          .replace(/^(\.\.\/)+/, "")
+          .replace(/^\.?\//, "")
+          .replace(/^\/+/, "");
+        return cleaned.startsWith("views/") ? cleaned : `views/${cleaned}`;
+      };
+
+      const normalizePageEntry = (entry) => {
+        if (typeof entry === "string") {
+          const filePath = normalizeFilePath(entry);
+          return { name: formatNameFromFile(entry), file: filePath };
+        }
+        if (!entry || typeof entry !== "object") {
+          return null;
+        }
+        const fileCandidate = entry.file || entry.path || entry.href;
+        if (!fileCandidate) {
+          return null;
+        }
+        const filePath = normalizeFilePath(fileCandidate);
+        const name = entry.name || formatNameFromFile(fileCandidate);
+        return { name, file: filePath };
+      };
+
+      const dedupePages = (items) => {
+        const seen = new Set();
+        return items.filter((item) => {
+          if (!item || !item.file) {
+            return false;
+          }
+          if (seen.has(item.file)) {
+            return false;
+          }
+          seen.add(item.file);
+          return true;
+        });
+      };
+
+      const getManifestPages = () => {
+        const manifest = window.VIEWS_MANIFEST;
+        if (!manifest) {
+          return [];
+        }
+        const manifestPages = Array.isArray(manifest) ? manifest : manifest.pages;
+        if (!Array.isArray(manifestPages)) {
+          return [];
+        }
+        return dedupePages(manifestPages.map(normalizePageEntry).filter(Boolean));
+      };
+
+      const parseDirectoryListing = (html) => {
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(html, "text/html");
+        const links = Array.from(doc.querySelectorAll("a"))
+          .map((anchor) => anchor.getAttribute("href"))
+          .filter(Boolean)
+          .map((href) => href.split("#")[0].split("?")[0])
+          .filter((href) => !href.startsWith("../"))
+          .filter((href) => href.toLowerCase().endsWith(".html"))
+          .filter((href) => !href.toLowerCase().endsWith("views.html"));
+
+        const pagesFromListing = links.map((href) => normalizePageEntry(href)).filter(Boolean);
+        return dedupePages(pagesFromListing);
+      };
+
+      const discoverPages = async () => {
+        const manifestPages = getManifestPages();
+        let listingPages = [];
+        try {
+          const response = await fetch("views/", { cache: "no-store" });
+          if (response.ok) {
+            const html = await response.text();
+            listingPages = parseDirectoryListing(html);
+          }
+        } catch (error) {
+          // Ignore fetch errors and fall back to the static list.
+        }
+
+        if (manifestPages.length > 0 && listingPages.length > 0) {
+          sourceLabel = "source: manifest + directory listing";
+          return dedupePages([...manifestPages, ...listingPages]);
+        }
+        if (manifestPages.length > 0) {
+          sourceLabel = "source: manifest";
+          return manifestPages;
+        }
+        if (listingPages.length > 0) {
+          sourceLabel = "source: directory listing";
+          return listingPages;
+        }
+
+        sourceLabel = "source: fallback list";
+        return fallbackPages;
+      };
+
+      const render = (items) => {
+        cardsGrid.innerHTML = "";
+        if (items.length === 0) {
+          emptyState.hidden = false;
+          const suffix = sourceLabel ? ` | ${sourceLabel}` : "";
+          countLabel.textContent = `0 results${suffix}`;
+          return;
+        }
+        emptyState.hidden = true;
+        const suffix = sourceLabel ? ` | ${sourceLabel}` : "";
+        countLabel.textContent = `${items.length} molecule${items.length === 1 ? "" : "s"}${suffix}`;
+        items.forEach((item, index) => {
+          const card = document.createElement("article");
+          card.className = "card";
+          card.style.animationDelay = `${index * 0.05}s`;
+          card.innerHTML = `
+            <h3>${item.name}</h3>
+            <p>Docking report and 3D visualization.</p>
+            <a href="${item.file}" target="_blank" rel="noopener">Open report</a>
+          `;
+          cardsGrid.appendChild(card);
+        });
+      };
+
+      const applyFilters = () => {
+        const filtered = currentOrder.filter((page) =>
+          page.name.toLowerCase().includes(currentQuery)
+        );
+        render(filtered);
+      };
+
+      searchInput.addEventListener("input", (event) => {
+        currentQuery = event.target.value.trim().toLowerCase();
+        applyFilters();
+      });
+
+      sortButton.addEventListener("click", () => {
+        sortAscending = !sortAscending;
+        const sorted = [...currentOrder].sort(compareNames);
+        currentOrder = sortAscending ? sorted : sorted.reverse();
+        sortButton.textContent = sortAscending ? "Sort A-Z" : "Sort Z-A";
+        sortButton.setAttribute("aria-pressed", String(!sortAscending));
+        applyFilters();
+      });
+
+      shuffleButton.addEventListener("click", () => {
+        currentOrder = [...currentOrder].sort(() => Math.random() - 0.5);
+        applyFilters();
+      });
+
+      const loadPages = async ({ clearQuery = false } = {}) => {
+        pages = await discoverPages();
+        currentOrder = [...pages].sort(compareNames);
+        sortAscending = true;
+        sortButton.textContent = "Sort A-Z";
+        sortButton.setAttribute("aria-pressed", "false");
+        if (clearQuery) {
+          currentQuery = "";
+          searchInput.value = "";
+        }
+        applyFilters();
+      };
+
+      rescanButton.addEventListener("click", () => {
+        void loadPages({ clearQuery: false });
+      });
+
+      void loadPages({ clearQuery: true });
+    </script>
+  </body>
+</html>
