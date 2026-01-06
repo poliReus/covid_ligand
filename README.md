@@ -141,3 +141,5 @@ Interpretation notes:
 - This is a screening workflow, not a validated experimental pipeline.
 - Docking scores are heuristic; use them for ranking, not absolute binding energies.
 - The MPI workflow assumes ligands exist in `ligands/`; run `gen_ligands.py` first or run `run_pipeline.py` for full orchestration.
+## View the local test result visiting:
+https://polireus.github.io/covid_ligand/views.html
