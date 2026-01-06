@@ -73,8 +73,6 @@ project_1/
   2) `VINA_EXECUTABLE` env var
   3) `./src/vina_1.2.7_mac_aarch64`
 
-Note: `EXHAUSTIVENESS` in `run_pipeline.py` is not passed into `mpi_docking.py`, so docking uses the value set in `mpi_docking.py`. Keep them aligned when tuning.
-
 ## Input CSV Format
 
 ```
