@@ -30,7 +30,6 @@ logs/
 # Generated outputs
 ligands/
 results/
-views/
 final_summary.csv
 
 # Local binaries
